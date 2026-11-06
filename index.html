@@ -1,0 +1,576 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>11unit</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;800&family=Onest:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<script>document.documentElement.classList.add('js')</script>
+<style>
+/* Layout: brutalist dark editorial. Big wide type, hairline grid, masonry of works, the logo mark repeated as watermark/divider/wordmark; red is signal only. */
+:root{
+  --ink:#0a0a0b;          /* page ground */
+  --surface:#131315;      /* raised blocks */
+  --line:#2a2a2e;         /* hairlines */
+  --paper:#ecebe8;        /* main text */
+  --steel:#8d8d93;        /* secondary text */
+  --red:#e5162c;          /* accent, signal only */
+  --f-display:"Unbounded","Arial Black",system-ui,sans-serif;
+  --f-body:"Onest",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+  --gut:max(16px,env(safe-area-inset-left,0px));
+  --gutr:max(16px,env(safe-area-inset-right,0px));
+  --ease:cubic-bezier(.2,.7,.2,1);
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:72px}
+body{background:var(--ink);color:var(--paper);font:400 16px/1.55 var(--f-body);-webkit-font-smoothing:antialiased;overflow-x:clip}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--ink);z-index:60}
+a{color:inherit}
+img{display:block}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+:focus-visible{outline:2px solid var(--red);outline-offset:3px}
+.wrap{max-width:1440px;margin-inline:auto;padding-left:var(--gut);padding-right:var(--gutr)}
+.mono{font-family:var(--f-mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--steel)}
+.eyebrow{display:flex;align-items:center;gap:10px}
+.eyebrow svg{height:16px;width:auto;fill:var(--red);flex:none}
+.m{fill:currentColor}
+
+/* preloader: logo draws in, then lifts away */
+.pre{position:fixed;inset:0;z-index:200;background:var(--ink);display:grid;place-items:center;pointer-events:none;animation:preOut .55s .8s var(--ease) forwards}
+.pre svg{height:84px;width:auto;fill:var(--paper);animation:preMark .8s var(--ease) both}
+@keyframes preMark{from{clip-path:inset(100% 0 0 0)}to{clip-path:inset(0)}}
+@keyframes preOut{to{transform:translateY(-100%);visibility:hidden}}
+
+/* progress */
+.prog{position:absolute;left:0;bottom:-1px;height:2px;width:100%;background:var(--red);transform-origin:0 50%;transform:scaleX(0)}
+
+/* header */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:50;background:color-mix(in srgb,var(--ink) 88%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.top .wrap{display:flex;align-items:center;justify-content:space-between;height:60px;gap:16px}
+.brand{display:flex;align-items:center;gap:12px;text-decoration:none}
+.brand svg{height:30px;width:auto;fill:currentColor;transition:transform .5s var(--ease)}
+.brand:hover svg{transform:skewX(-8deg) scale(1.08)}
+.brand span{font:600 13px/1 var(--f-display);letter-spacing:.02em;white-space:nowrap}
+.nav{display:flex;gap:6px;align-items:center}
+.nav a{font:500 12px/1 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;text-decoration:none;padding:10px 12px;color:var(--steel);transition:color .2s}
+.nav a:hover{color:var(--paper)}
+.nav .cta{color:var(--ink);background:var(--paper);padding:10px 14px;transition:background .2s,color .2s}
+.nav .cta:hover{background:var(--red);color:var(--paper)}
+.burger{display:none;width:44px;height:44px;border:1px solid var(--line);position:relative}
+.burger i{position:absolute;left:12px;right:12px;height:2px;background:var(--paper);transition:transform .3s var(--ease),opacity .2s}
+.burger i:nth-child(1){top:16px}.burger i:nth-child(2){top:21px}.burger i:nth-child(3){top:26px}
+.burger[aria-expanded="true"] i:nth-child(1){transform:translateY(5px) rotate(45deg)}
+.burger[aria-expanded="true"] i:nth-child(2){opacity:0}
+.burger[aria-expanded="true"] i:nth-child(3){transform:translateY(-5px) rotate(-45deg)}
+.menu{position:fixed;inset:0;z-index:45;background:var(--ink);padding:calc(env(safe-area-inset-top,0px) + 90px) var(--gutr) calc(env(safe-area-inset-bottom,0px) + 28px) var(--gut);display:flex;flex-direction:column;justify-content:space-between;clip-path:inset(0 0 100% 0);transition:clip-path .5s var(--ease);visibility:hidden}
+.menu.open{clip-path:inset(0);visibility:visible}
+.menu nav{display:flex;flex-direction:column}
+.menu nav a{font:800 clamp(1.8rem,9vw,3rem)/1.1 var(--f-display);text-transform:uppercase;letter-spacing:-.03em;text-decoration:none;padding:14px 0;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}
+.menu nav a:active{color:var(--red)}
+.menu .big{position:absolute;right:-6%;bottom:8%;height:46vh;width:auto;fill:var(--paper);opacity:.05;pointer-events:none}
+
+/* hero */
+.hero{position:relative;overflow:hidden;padding-block:clamp(40px,7vw,96px) clamp(36px,5vw,64px)}
+.hero .wm{position:absolute;left:38%;top:-8%;height:130%;width:auto;fill:var(--paper);opacity:.035;pointer-events:none;will-change:transform}
+.hero .wrap{position:relative;display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,.75fr);gap:clamp(24px,4vw,64px);align-items:end}
+.hero h1{margin:18px 0 0;font:800 clamp(2.1rem,6.2vw,5.4rem)/1.02 var(--f-display);letter-spacing:-.035em;text-wrap:balance;text-transform:uppercase}
+.hero h1 .w{display:inline-block;overflow:hidden;vertical-align:top;padding-bottom:.06em;margin-bottom:-.06em}
+.hero h1 .w>span{display:inline-block}
+.hero h1 em{font-style:normal;color:var(--red)}
+.lede{max-width:54ch;margin:28px 0 0;color:var(--steel);font-size:clamp(16px,1.5vw,19px)}
+.lede b{color:var(--paper);font-weight:500}
+.hero-actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:32px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;padding:16px 22px;font:500 13px/1 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;text-decoration:none;border:1px solid var(--paper);transition:background .2s,color .2s,border-color .2s,transform .25s var(--ease)}
+.btn.solid{background:var(--paper);color:var(--ink)}
+.btn.solid:hover{background:var(--red);border-color:var(--red);color:var(--paper)}
+.btn.ghost:hover{border-color:var(--red);color:var(--red)}
+.fan{position:relative;aspect-ratio:1/1.05;width:100%;max-width:520px;justify-self:end}
+.fan img{position:absolute;width:56%;height:auto;border:1px solid var(--line);box-shadow:0 30px 60px -20px #000;transition:transform .25s ease-out}
+.fan img:nth-child(1){left:0;top:6%;transform:translate(calc(var(--px,0)*10px),calc(var(--py,0)*8px)) rotate(-5deg)}
+.fan img:nth-child(2){right:0;top:0;transform:translate(calc(var(--px,0)*-16px),calc(var(--py,0)*-10px)) rotate(4deg);z-index:2}
+.fan img:nth-child(3){left:22%;bottom:0;width:50%;transform:translate(calc(var(--px,0)*22px),calc(var(--py,0)*14px)) rotate(-1deg);z-index:3}
+@media (prefers-reduced-motion:no-preference){
+  .hero h1 .w>span{animation:word .9s var(--ease) both;animation-delay:calc(.55s + var(--i)*.07s)}
+  .hero .eyebrow,.lede,.hero-actions{animation:rise .8s var(--ease) both}
+  .hero .eyebrow{animation-delay:.5s}.lede{animation-delay:.95s}.hero-actions{animation-delay:1.05s}
+  .fan img{animation:fanIn 1s var(--ease) both}
+  .fan img:nth-child(1){animation-delay:.8s}.fan img:nth-child(2){animation-delay:.92s}.fan img:nth-child(3){animation-delay:1.04s}
+}
+@keyframes rise{from{opacity:0;transform:translateY(18px)}}
+@keyframes word{from{transform:translateY(105%)}}
+@keyframes fanIn{from{opacity:0;translate:0 60px;scale:.9}}
+
+/* marquee */
+.band{border-block:1px solid var(--line);overflow:hidden;background:var(--surface)}
+.band-row{display:flex;width:max-content;animation:slide 40s linear infinite}
+.band-row.rev{animation-direction:reverse;animation-duration:55s;border-top:1px solid var(--line)}
+.band:hover .band-row{animation-play-state:paused}
+.band-row span{display:flex;align-items:center;gap:28px;padding:18px 14px 18px 0;font:800 clamp(16px,2.2vw,30px)/1 var(--f-display);text-transform:uppercase;letter-spacing:.01em;white-space:nowrap}
+.band-row.rev span{color:transparent;-webkit-text-stroke:1px var(--steel)}
+.band-row svg{height:1.4em;width:auto;fill:var(--red)}
+@keyframes slide{to{transform:translateX(-50%)}}
+
+/* sections */
+section{padding-block:clamp(56px,8vw,112px)}
+.sec-head{display:flex;flex-wrap:wrap;align-items:end;justify-content:space-between;gap:20px 32px;margin-bottom:clamp(24px,3vw,40px)}
+.sec-head h2{margin:10px 0 0;font:800 clamp(1.7rem,4.2vw,3.4rem)/1.05 var(--f-display);letter-spacing:-.03em;text-transform:uppercase;text-wrap:balance}
+
+/* reveal */
+.js .rv{opacity:0;transform:translateY(28px);transition:opacity .8s var(--ease),transform .8s var(--ease);transition-delay:var(--d,0s)}
+.js .rv.in{opacity:1;transform:none}
+
+/* filters */
+.filters{display:flex;flex-wrap:wrap;gap:8px}
+.chip{display:inline-flex;align-items:center;gap:8px;padding:11px 14px;border:1px solid var(--line);font:500 12px/1 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--steel);transition:border-color .2s,color .2s,background .2s}
+.chip:hover{border-color:var(--steel);color:var(--paper)}
+.chip[aria-pressed="true"]{background:var(--paper);border-color:var(--paper);color:var(--ink)}
+.chip i{font-style:normal;opacity:.6}
+
+/* masonry */
+.grid{columns:3;column-gap:12px}
+.work{break-inside:avoid;margin:0 0 12px;position:relative}
+.work[hidden]{display:none!important}
+.work.pop{animation:pop .6s var(--ease) both;animation-delay:var(--pd,0s)}
+@keyframes pop{from{opacity:0;transform:translateY(24px) scale(.97)}}
+.card{display:block;width:100%;position:relative;overflow:hidden;background:var(--surface);border:1px solid var(--line);text-align:left;transition:border-color .3s}
+.card img{width:100%;height:auto;transition:transform .8s var(--ease)}
+.card::after{content:"";position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.82),transparent 55%);opacity:0;transition:opacity .3s}
+.card .corner{position:absolute;top:10px;right:10px;z-index:2;height:22px;width:auto;fill:var(--paper);opacity:0;transform:translateY(-6px) skewX(-8deg);transition:opacity .3s,transform .4s var(--ease)}
+.cap{position:absolute;left:0;right:0;bottom:0;z-index:2;padding:14px 16px;display:flex;justify-content:space-between;align-items:end;gap:12px;opacity:0;transform:translateY(8px);transition:opacity .3s,transform .3s}
+.cap b{font:600 13px/1.25 var(--f-display);letter-spacing:-.01em;color:#fff}
+.cap span{font:500 11px/1 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--red);white-space:nowrap}
+.card:hover img,.card:focus-visible img{transform:scale(1.045)}
+.card:hover::after,.card:focus-visible::after,.card:hover .cap,.card:focus-visible .cap,.card:hover .corner,.card:focus-visible .corner{opacity:1;transform:none}
+.card:hover{border-color:var(--red)}
+@media (hover:none){.card::after,.cap{opacity:1;transform:none}.cap b{font-size:11px}.cap span,.card .corner{display:none}}
+
+/* about */
+.about .wrap{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:clamp(28px,5vw,80px);align-items:start}
+.about h2{margin:10px 0 0;font:800 clamp(1.9rem,4.6vw,3.8rem)/1.04 var(--f-display);letter-spacing:-.035em;text-transform:uppercase;text-wrap:balance}
+.about h2 em{font-style:normal;color:var(--red)}
+.about p{margin:22px 0 0;max-width:58ch;color:var(--steel);font-size:clamp(16px,1.4vw,18px)}
+.about p b{color:var(--paper);font-weight:500}
+.about h3{margin:44px 0 0;font:600 12px/1 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--paper);display:flex;align-items:center;gap:10px}
+.about h3 svg{height:14px;width:auto;fill:var(--red)}
+.tools{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+.tool{padding:12px 16px;border:1px solid var(--line);font:600 13px/1 var(--f-display);transition:border-color .2s,transform .3s var(--ease),background .2s}
+.tool:hover{border-color:var(--red);transform:translateY(-3px);background:var(--surface)}
+.panel{position:relative;overflow:hidden;background:var(--surface);border:1px solid var(--line);padding:clamp(20px,3vw,36px)}
+.panel .outline{display:block;height:clamp(150px,22vw,260px);width:auto;margin:0 auto;fill:none;stroke:var(--red);stroke-width:3;stroke-linejoin:miter}
+.panel .outline polygon{stroke-dasharray:1800;stroke-dashoffset:0}
+.js .panel:not(.in) .outline polygon{stroke-dashoffset:1800}
+.panel .outline polygon{transition:stroke-dashoffset 2s var(--ease)}
+.panel .outline polygon+polygon{transition-delay:.25s}
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));margin-top:clamp(20px,3vw,32px);border-top:1px solid var(--line)}
+.stat{padding:20px 14px 4px 0}
+.stat+.stat{padding-left:16px;border-left:1px solid var(--line)}
+.stat b{display:block;font:800 clamp(1.6rem,3.2vw,2.8rem)/1 var(--f-display);letter-spacing:-.04em;font-variant-numeric:tabular-nums}
+.stat>span{display:block;margin-top:10px;font:400 11px/1.4 var(--f-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--steel)}
+
+/* directions */
+.rows{border-top:1px solid var(--line)}
+.row{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1.3fr) auto;gap:16px 32px;align-items:center;width:100%;padding:28px 0;border-bottom:1px solid var(--line);text-align:left;transition:padding .3s var(--ease),background .3s;position:relative}
+.row::before{content:"";position:absolute;left:0;bottom:-1px;height:1px;width:100%;background:var(--red);transform:scaleX(0);transform-origin:0 50%;transition:transform .5s var(--ease)}
+.row:hover::before{transform:scaleX(1)}
+.row h3{margin:0;font:800 clamp(1.15rem,2.4vw,1.9rem)/1.1 var(--f-display);letter-spacing:-.02em;text-transform:uppercase;transition:color .2s}
+.row p{margin:0;color:var(--steel);max-width:52ch}
+.row .go{display:flex;align-items:center;gap:14px}
+.row .thumbs{display:flex}
+.row .thumbs img{width:56px;height:56px;object-fit:cover;border:2px solid var(--ink);margin-left:-14px;background:var(--surface);transition:transform .4s var(--ease)}
+.row .thumbs img:first-child{margin-left:0}
+.row:hover .thumbs img{transform:translateY(-6px) rotate(-3deg)}
+.row:hover .thumbs img:nth-child(2){transform:translateY(-10px) rotate(2deg)}
+.row:hover{padding-left:12px}
+.row:hover h3{color:var(--red)}
+
+/* contact */
+.contact{position:relative;overflow:hidden;background:var(--paper);color:var(--ink)}
+.contact .mono{color:#55555a}
+.contact .eyebrow svg{fill:var(--red)}
+.contact h2{margin:14px 0 0;font:800 clamp(2.2rem,7.4vw,6.6rem)/.98 var(--f-display);letter-spacing:-.04em;text-transform:uppercase;text-wrap:balance}
+.contact .wm{position:absolute;right:calc(var(--gutr) - 2%);bottom:-6%;height:min(80%,520px);width:auto;fill:var(--ink);opacity:.06;pointer-events:none}
+.contact .wrap{position:relative}
+.safe{display:flex;gap:16px;align-items:flex-start;margin-top:clamp(24px,3.5vw,40px);padding:18px 20px;border:2px solid var(--red);background:color-mix(in srgb,var(--red) 7%,var(--paper))}
+.safe svg{flex:none;width:28px;height:28px;stroke:var(--red);fill:none;stroke-width:2}
+.safe b{display:block;font:800 15px/1.3 var(--f-display);text-transform:uppercase;letter-spacing:-.01em}
+.safe p{margin:6px 0 0;max-width:70ch;font-size:15px}
+.people{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:20px}
+.person{display:flex;flex-direction:column;gap:14px;padding:20px;border:1px solid var(--ink);background:transparent;transition:transform .35s var(--ease),box-shadow .35s var(--ease)}
+.person:hover{transform:translateY(-6px);box-shadow:8px 8px 0 var(--ink)}
+.person.lead{background:var(--ink);color:var(--paper)}
+.person.lead .mono{color:#a0a0a6}
+.person .nm{font:600 16px/1.2 var(--f-mono);overflow-wrap:anywhere}
+.person .acts{display:flex;gap:8px;margin-top:auto;flex-wrap:wrap}
+.person .btn{padding:13px 14px;font-size:12px;flex:1 1 auto;background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.person .btn:hover{background:var(--red);border-color:var(--red)}
+.person.lead .btn{background:var(--paper);color:var(--ink);border-color:var(--paper)}
+.person.lead .btn:hover{background:var(--red);color:var(--paper);border-color:var(--red)}
+.copy{padding:13px 14px;border:1px solid currentColor;font:500 12px/1 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;transition:background .2s,color .2s}
+.copy:hover{background:var(--red);border-color:var(--red);color:var(--paper)}
+
+/* footer */
+footer{background:var(--ink);overflow:hidden;padding-top:clamp(32px,5vw,64px)}
+footer .word{display:flex;align-items:center;justify-content:center;gap:2vw;white-space:nowrap}
+footer .word svg{height:15vw;width:auto;fill:var(--red)}
+footer .word span{font:800 18vw/1 var(--f-display);letter-spacing:-.05em;color:transparent;-webkit-text-stroke:1.5px var(--paper);transition:color .5s}
+footer .word:hover span{color:var(--paper)}
+footer .base{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;padding-block:24px 28px}
+
+/* lightbox */
+.lb{position:fixed;inset:0;z-index:100;background:rgba(6,6,7,.96);display:grid;grid-template-rows:auto minmax(0,1fr) auto;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);padding-left:var(--gut);padding-right:var(--gutr);animation:fade .3s ease both}
+.lb[hidden]{display:none!important}
+@keyframes fade{from{opacity:0}}
+.lb-bar{display:flex;justify-content:space-between;align-items:center;height:56px}
+.lb-stage{position:relative;display:flex;align-items:center;justify-content:center;min-height:0}
+.lb-stage img{max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain;border:1px solid var(--line);animation:zoom .45s var(--ease) both}
+@keyframes zoom{from{opacity:0;transform:scale(.96)}}
+.lb-foot{padding:14px 0 18px;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:8px 24px}
+.lb-foot b{font:600 15px/1.2 var(--f-display)}
+.lb-foot svg{height:20px;width:auto;fill:var(--red)}
+.ib{width:48px;height:48px;display:grid;place-items:center;border:1px solid var(--line);background:rgba(10,10,11,.7);transition:border-color .2s,background .2s}
+.ib:hover{border-color:var(--red);background:var(--red)}
+.ib svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8}
+.lb-nav{position:absolute;top:50%;transform:translateY(-50%);z-index:3}
+.lb-nav.prev{left:0}.lb-nav.next{right:0}
+
+/* responsive */
+@media (max-width:1100px){.people{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:1000px){.grid{columns:2}.hero .wrap,.about .wrap{grid-template-columns:1fr}.fan{justify-self:start;max-width:440px}.hero .wm{left:30%}}
+@media (max-width:760px){
+  .nav{display:none}.burger{display:block}
+  .brand span{display:inline}
+  .row{grid-template-columns:1fr;padding:22px 0}.row:hover{padding-left:0}
+  .grid{column-gap:8px}.work{margin-bottom:8px}
+  .lb-nav{top:auto;bottom:8px;transform:none}
+  .people{grid-template-columns:1fr}
+  .hero-actions .btn{flex:1 1 100%}
+  .stats{grid-template-columns:1fr}
+  .stat+.stat{padding-left:0;border-left:0;border-top:1px solid var(--line);margin-top:16px}
+  .stat{display:flex;align-items:baseline;gap:16px;padding:16px 0 0}
+  .stat>span{margin-top:0}
+  .safe{padding:14px}
+  footer .word span{-webkit-text-stroke-width:1px}
+}
+@media (prefers-reduced-motion:reduce){
+  .pre{display:none}.band-row{animation:none}
+  .js .rv{opacity:1;transform:none;transition:none}
+  .js .panel:not(.in) .outline polygon{stroke-dashoffset:0}
+  *{scroll-behavior:auto!important}
+}
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><g id="mark"><polygon points="286.98 828.82 515.41 681.02 515.41 257.89 515.41 251.18 286.35 398.71 286.98 828.82"/><polygon points="565.22 828.82 793.65 681.02 793.65 257.89 793.65 251.18 564.59 398.71 565.22 828.82"/></g></defs></svg>
+
+<div class="pre" aria-hidden="true"><svg viewBox="270 235 540 610"><use href="#mark"/></svg></div>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="#top" aria-label="11unit, наверх"><svg viewBox="270 235 540 610" aria-hidden="true"><use href="#mark"/></svg><span>11unit</span></a>
+    <nav class="nav" aria-label="Разделы">
+      <a href="#works">Работы</a>
+      <a href="#about">Обо мне</a>
+      <a href="#what">Направления</a>
+      <a class="cta" href="#contact">Заказать</a>
+    </nav>
+    <button class="burger" id="burger" type="button" aria-label="Меню" aria-expanded="false" aria-controls="menu"><i></i><i></i><i></i></button>
+  </div>
+  <div class="prog" id="prog"></div>
+</header>
+
+<div class="menu" id="menu">
+  <nav aria-label="Разделы (мобильное меню)">
+    <a href="#works">Работы <span class="mono">23</span></a>
+    <a href="#about">Обо мне</a>
+    <a href="#what">Направления</a>
+    <a href="#contact" style="color:var(--red)">Заказать</a>
+  </nav>
+  <div class="mono">Сверяйте тег: @sanzeliwa и 3 менеджера</div>
+  <svg class="big" viewBox="270 235 540 610" aria-hidden="true"><use href="#mark"/></svg>
+</div>
+
+<main id="top">
+  <div class="hero">
+    <svg class="wm" id="wm" viewBox="270 235 540 610" aria-hidden="true"><use href="#mark"/></svg>
+    <div class="wrap">
+      <div>
+        <div class="mono eyebrow"><svg viewBox="270 235 540 610" aria-hidden="true"><use href="#mark"/></svg>11unit — графический дизайн</div>
+        <h1><span class="w"><span style="--i:0">Дизайн,</span></span> <span class="w"><span style="--i:1">который</span></span> <span class="w"><span style="--i:2"><em>не</em></span></span> <span class="w"><span style="--i:3">пролистывают</span></span></h1>
+        <p class="lede">Более <b>4 лет в дизайне</b> и больше <b>100 выполненных заказов</b>. Оформляю Telegram-каналы, делаю каталоги и акции для streetwear-брендов, рисую постеры и логотипы.</p>
+        <div class="hero-actions">
+          <a class="btn solid" href="#works">Смотреть работы</a>
+          <a class="btn ghost" href="#contact">Заказать дизайн</a>
+        </div>
+      </div>
+      <div class="fan" id="fan" aria-hidden="true">
+        <img src="img/t17.webp" alt="" width="1129" height="1280"><img src="img/t19.webp" alt="" width="853" height="1280"><img src="img/t13.webp" alt="" width="1280" height="1280">
+      </div>
+    </div>
+  </div>
+
+  <div class="band" aria-hidden="true">
+    <div class="band-row"><span>Telegram<svg viewBox="270 235 540 610" aria-hidden="true"><use href="#mark"/></svg>Streetwear<svg viewBox="270 235 540 610" aria-hidden="true"><use href="#mark"/></svg>Постеры<svg viewBox="270 235 540 610" aria-hidden="true"><use href="#mark"/></svg>Айдентика<svg viewBox="270 235 540 610" aria-hidden="true"><use href="#mark"/></svg></span><span>Telegram<svg viewBox="270 235 540 610" aria-hidden="true"><use href="#mark"/></svg>Streetwear<svg viewBox="270 235 540 610" aria-hidden="true"><use href="#mark"/></svg>Постеры<svg viewBox="270 235 540 610" aria-hidden="true"><use href="#mark"/></svg>Айдентика<svg viewBox="270 235 540 610" aria-hidden="true"><use href="#mark"/></svg></span><span>Telegram<svg viewBox="270 235 540 610" aria-hidden="true"><use href="#mark"/></svg>Streetwear<svg viewBox="270 235 540 610" aria-hidden="true"><use href="#mark"/></svg>Постеры<svg viewBox="270 235 540 610" aria-hidden="true"><use href="#mark"/></svg>Айдентика<svg viewBox="270 235 540 610" aria-hidden="true"><use href="#mark"/></svg></span><span>Telegram<svg viewBox="270 235 540 610" aria-hidden="true"><use href="#mark"/></svg>Streetwear<svg viewBox="270 235 540 610" aria-hidden="true"><use href="#mark"/></svg>Постеры<svg viewBox="270 235 540 610" aria-hidden="true"><use href="#mark"/></svg>Айдентика<svg viewBox="270 235 540 610" aria-hidden="true"><use href="#mark"/></svg></span></div>
+    <div class="band-row rev"><span>Telegram<svg viewBox="270 235 540 610" aria-hidden="true"><use href="#mark"/></svg>Streetwear<svg viewBox="270 235 540 610" aria-hidden="true"><use href="#mark"/></svg>Постеры<svg viewBox="270 235 540 610" aria-hidden="true"><use href="#mark"/></svg>Айдентика<svg viewBox="270 235 540 610" aria-hidden="true"><use href="#mark"/></svg></span><span>Telegram<svg viewBox="270 235 540 610" aria-hidden="true"><use href="#mark"/></svg>Streetwear<svg viewBox="270 235 540 610" aria-hidden="true"><use href="#mark"/></svg>Постеры<svg viewBox="270 235 540 610" aria-hidden="true"><use href="#mark"/></svg>Айдентика<svg viewBox="270 235 540 610" aria-hidden="true"><use href="#mark"/></svg></span><span>Telegram<svg viewBox="270 235 540 610" aria-hidden="true"><use href="#mark"/></svg>Streetwear<svg viewBox="270 235 540 610" aria-hidden="true"><use href="#mark"/></svg>Постеры<svg viewBox="270 235 540 610" aria-hidden="true"><use href="#mark"/></svg>Айдентика<svg viewBox="270 235 540 610" aria-hidden="true"><use href="#mark"/></svg></span><span>Telegram<svg viewBox="270 235 540 610" aria-hidden="true"><use href="#mark"/></svg>Streetwear<svg viewBox="270 235 540 610" aria-hidden="true"><use href="#mark"/></svg>Постеры<svg viewBox="270 235 540 610" aria-hidden="true"><use href="#mark"/></svg>Айдентика<svg viewBox="270 235 540 610" aria-hidden="true"><use href="#mark"/></svg></span></div>
+  </div>
+
+  <section id="works">
+    <div class="wrap">
+      <div class="sec-head rv">
+        <div>
+          <div class="mono eyebrow"><svg viewBox="270 235 540 610" aria-hidden="true"><use href="#mark"/></svg>Избранное · <span id="shown">23</span> из 23</div>
+          <h2>Работы</h2>
+        </div>
+        <div class="filters" role="group" aria-label="Фильтр по направлению">
+          <button class="chip" type="button" data-f="all" aria-pressed="true">Все <i>23</i></button><button class="chip" type="button" data-f="tg" aria-pressed="false">Telegram <i>10</i></button><button class="chip" type="button" data-f="wear" aria-pressed="false">Streetwear <i>6</i></button><button class="chip" type="button" data-f="poster" aria-pressed="false">Постеры <i>7</i></button><button class="chip" type="button" data-f="brand" aria-pressed="false">Айдентика <i>3</i></button>
+        </div>
+      </div>
+      <div class="grid" id="grid">
+        <figure class="work" data-cat="tg" data-title="Sanz Eliwa · аватар" data-full="img/w04.webp"><button class="card" type="button" aria-label="Открыть: Sanz Eliwa · аватар"><img src="img/t04.webp" width="1280" height="1280" alt="Sanz Eliwa · аватар" loading="eager" decoding="async"><svg class="corner" viewBox="270 235 540 610" aria-hidden="true"><use href="#mark"/></svg><span class="cap"><b>Sanz Eliwa · аватар</b><span>Telegram</span></span></button></figure>
+<figure class="work" data-cat="wear tg" data-title="Giveaway · розыгрыш одежды" data-full="img/w05.webp"><button class="card" type="button" aria-label="Открыть: Giveaway · розыгрыш одежды"><img src="img/t05.webp" width="1280" height="728" alt="Giveaway · розыгрыш одежды" loading="eager" decoding="async"><svg class="corner" viewBox="270 235 540 610" aria-hidden="true"><use href="#mark"/></svg><span class="cap"><b>Giveaway · розыгрыш одежды</b><span>Streetwear</span></span></button></figure>
+<figure class="work" data-cat="tg" data-title="Sanz Eliwa · баннер" data-full="img/w06.webp"><button class="card" type="button" aria-label="Открыть: Sanz Eliwa · баннер"><img src="img/t06.webp" width="1280" height="1280" alt="Sanz Eliwa · баннер" loading="eager" decoding="async"><svg class="corner" viewBox="270 235 540 610" aria-hidden="true"><use href="#mark"/></svg><span class="cap"><b>Sanz Eliwa · баннер</b><span>Telegram</span></span></button></figure>
+<figure class="work" data-cat="tg" data-title="Сущности Кам’янське" data-full="img/w07.webp"><button class="card" type="button" aria-label="Открыть: Сущности Кам’янське"><img src="img/t07.webp" width="1280" height="1280" alt="Сущности Кам’янське" loading="eager" decoding="async"><svg class="corner" viewBox="270 235 540 610" aria-hidden="true"><use href="#mark"/></svg><span class="cap"><b>Сущности Кам’янське</b><span>Telegram</span></span></button></figure>
+<figure class="work" data-cat="tg" data-title="Литература современного мира" data-full="img/w08.webp"><button class="card" type="button" aria-label="Открыть: Литература современного мира"><img src="img/t08.webp" width="1280" height="1280" alt="Литература современного мира" loading="eager" decoding="async"><svg class="corner" viewBox="270 235 540 610" aria-hidden="true"><use href="#mark"/></svg><span class="cap"><b>Литература современного мира</b><span>Telegram</span></span></button></figure>
+<figure class="work" data-cat="tg" data-title="Shop XD" data-full="img/w09.webp"><button class="card" type="button" aria-label="Открыть: Shop XD"><img src="img/t09.webp" width="1280" height="1280" alt="Shop XD" loading="eager" decoding="async"><svg class="corner" viewBox="270 235 540 610" aria-hidden="true"><use href="#mark"/></svg><span class="cap"><b>Shop XD</b><span>Telegram</span></span></button></figure>
+<figure class="work" data-cat="tg" data-title="Анонимно ПЖ" data-full="img/w10.webp"><button class="card" type="button" aria-label="Открыть: Анонимно ПЖ"><img src="img/t10.webp" width="1280" height="1280" alt="Анонимно ПЖ" loading="lazy" decoding="async"><svg class="corner" viewBox="270 235 540 610" aria-hidden="true"><use href="#mark"/></svg><span class="cap"><b>Анонимно ПЖ</b><span>Telegram</span></span></button></figure>
+<figure class="work" data-cat="wear" data-title="Identity · акция на футболки" data-full="img/w11.webp"><button class="card" type="button" aria-label="Открыть: Identity · акция на футболки"><img src="img/t11.webp" width="1280" height="870" alt="Identity · акция на футболки" loading="lazy" decoding="async"><svg class="corner" viewBox="270 235 540 610" aria-hidden="true"><use href="#mark"/></svg><span class="cap"><b>Identity · акция на футболки</b><span>Streetwear</span></span></button></figure>
+<figure class="work" data-cat="wear" data-title="Dreamless · скидки" data-full="img/w12.webp"><button class="card" type="button" aria-label="Открыть: Dreamless · скидки"><img src="img/t12.webp" width="1280" height="720" alt="Dreamless · скидки" loading="lazy" decoding="async"><svg class="corner" viewBox="270 235 540 610" aria-hidden="true"><use href="#mark"/></svg><span class="cap"><b>Dreamless · скидки</b><span>Streetwear</span></span></button></figure>
+<figure class="work" data-cat="poster" data-title="Threshold" data-full="img/w13.webp"><button class="card" type="button" aria-label="Открыть: Threshold"><img src="img/t13.webp" width="1280" height="1280" alt="Threshold" loading="lazy" decoding="async"><svg class="corner" viewBox="270 235 540 610" aria-hidden="true"><use href="#mark"/></svg><span class="cap"><b>Threshold</b><span>Постеры</span></span></button></figure>
+<figure class="work" data-cat="brand" data-title="Scale Design · знак" data-full="img/w14.webp"><button class="card" type="button" aria-label="Открыть: Scale Design · знак"><img src="img/t14.webp" width="1280" height="1280" alt="Scale Design · знак" loading="lazy" decoding="async"><svg class="corner" viewBox="270 235 540 610" aria-hidden="true"><use href="#mark"/></svg><span class="cap"><b>Scale Design · знак</b><span>Айдентика</span></span></button></figure>
+<figure class="work" data-cat="poster wear" data-title="Silence is louder" data-full="img/w15.webp"><button class="card" type="button" aria-label="Открыть: Silence is louder"><img src="img/t15.webp" width="1280" height="720" alt="Silence is louder" loading="lazy" decoding="async"><svg class="corner" viewBox="270 235 540 610" aria-hidden="true"><use href="#mark"/></svg><span class="cap"><b>Silence is louder</b><span>Постеры</span></span></button></figure>
+<figure class="work" data-cat="wear" data-title="Kamshiro · Summer Sale" data-full="img/w16.webp"><button class="card" type="button" aria-label="Открыть: Kamshiro · Summer Sale"><img src="img/t16.webp" width="1280" height="640" alt="Kamshiro · Summer Sale" loading="lazy" decoding="async"><svg class="corner" viewBox="270 235 540 610" aria-hidden="true"><use href="#mark"/></svg><span class="cap"><b>Kamshiro · Summer Sale</b><span>Streetwear</span></span></button></figure>
+<figure class="work" data-cat="poster" data-title="After Midnight · Issue 01" data-full="img/w17.webp"><button class="card" type="button" aria-label="Открыть: After Midnight · Issue 01"><img src="img/t17.webp" width="1129" height="1280" alt="After Midnight · Issue 01" loading="lazy" decoding="async"><svg class="corner" viewBox="270 235 540 610" aria-hidden="true"><use href="#mark"/></svg><span class="cap"><b>After Midnight · Issue 01</b><span>Постеры</span></span></button></figure>
+<figure class="work" data-cat="wear" data-title="TotallyCult · джинсы" data-full="img/w18.webp"><button class="card" type="button" aria-label="Открыть: TotallyCult · джинсы"><img src="img/t18.webp" width="943" height="1280" alt="TotallyCult · джинсы" loading="lazy" decoding="async"><svg class="corner" viewBox="270 235 540 610" aria-hidden="true"><use href="#mark"/></svg><span class="cap"><b>TotallyCult · джинсы</b><span>Streetwear</span></span></button></figure>
+<figure class="work" data-cat="poster" data-title="Disconnected" data-full="img/w19.webp"><button class="card" type="button" aria-label="Открыть: Disconnected"><img src="img/t19.webp" width="853" height="1280" alt="Disconnected" loading="lazy" decoding="async"><svg class="corner" viewBox="270 235 540 610" aria-hidden="true"><use href="#mark"/></svg><span class="cap"><b>Disconnected</b><span>Постеры</span></span></button></figure>
+<figure class="work" data-cat="brand tg" data-title="Ledby · аватар и баннер" data-full="img/w20.webp"><button class="card" type="button" aria-label="Открыть: Ledby · аватар и баннер"><img src="img/t20.webp" width="1280" height="640" alt="Ledby · аватар и баннер" loading="lazy" decoding="async"><svg class="corner" viewBox="270 235 540 610" aria-hidden="true"><use href="#mark"/></svg><span class="cap"><b>Ledby · аватар и баннер</b><span>Айдентика</span></span></button></figure>
+<figure class="work" data-cat="poster" data-title="9† · постер" data-full="img/w21.webp"><button class="card" type="button" aria-label="Открыть: 9† · постер"><img src="img/t21.webp" width="1280" height="1280" alt="9† · постер" loading="lazy" decoding="async"><svg class="corner" viewBox="270 235 540 610" aria-hidden="true"><use href="#mark"/></svg><span class="cap"><b>9† · постер</b><span>Постеры</span></span></button></figure>
+<figure class="work" data-cat="tg" data-title="MIPI" data-full="img/w22.webp"><button class="card" type="button" aria-label="Открыть: MIPI"><img src="img/t22.webp" width="1280" height="1280" alt="MIPI" loading="lazy" decoding="async"><svg class="corner" viewBox="270 235 540 610" aria-hidden="true"><use href="#mark"/></svg><span class="cap"><b>MIPI</b><span>Telegram</span></span></button></figure>
+<figure class="work" data-cat="poster" data-title="991" data-full="img/w23.webp"><button class="card" type="button" aria-label="Открыть: 991"><img src="img/t23.webp" width="1280" height="1280" alt="991" loading="lazy" decoding="async"><svg class="corner" viewBox="270 235 540 610" aria-hidden="true"><use href="#mark"/></svg><span class="cap"><b>991</b><span>Постеры</span></span></button></figure>
+<figure class="work" data-cat="tg" data-title="Анонимные номера" data-full="img/w24.webp"><button class="card" type="button" aria-label="Открыть: Анонимные номера"><img src="img/t24.webp" width="1080" height="1080" alt="Анонимные номера" loading="lazy" decoding="async"><svg class="corner" viewBox="270 235 540 610" aria-hidden="true"><use href="#mark"/></svg><span class="cap"><b>Анонимные номера</b><span>Telegram</span></span></button></figure>
+<figure class="work" data-cat="brand" data-title="Morissi · 24/7 online store" data-full="img/w25.webp"><button class="card" type="button" aria-label="Открыть: Morissi · 24/7 online store"><img src="img/t25.webp" width="1280" height="727" alt="Morissi · 24/7 online store" loading="lazy" decoding="async"><svg class="corner" viewBox="270 235 540 610" aria-hidden="true"><use href="#mark"/></svg><span class="cap"><b>Morissi · 24/7 online store</b><span>Айдентика</span></span></button></figure>
+<figure class="work" data-cat="poster" data-title="Style" data-full="img/w26.webp"><button class="card" type="button" aria-label="Открыть: Style"><img src="img/t26.webp" width="1280" height="1280" alt="Style" loading="lazy" decoding="async"><svg class="corner" viewBox="270 235 540 610" aria-hidden="true"><use href="#mark"/></svg><span class="cap"><b>Style</b><span>Постеры</span></span></button></figure>
+
+      </div>
+    </div>
+  </section>
+
+  <section class="about" id="about" style="padding-top:0">
+    <div class="wrap">
+      <div class="rv">
+        <div class="mono eyebrow"><svg viewBox="270 235 540 610" aria-hidden="true"><use href="#mark"/></svg>Обо мне и о проекте</div>
+        <h2>Я Sanz Eliwa. Делаю графику, которую <em>запоминают</em></h2>
+        <p>Я графический дизайнер. В дизайне <b>больше 4 лет</b>, за это время выполнил <b>более 100 заказов</b>: оформление Telegram-каналов и магазинов, каталоги и акции для одежды, постеры, логотипы.</p>
+        <p>Люблю контрастную графику, крупную типографику и детали, которые цепляют взгляд за секунду. Каждую работу делаю под задачу заказчика: от аватарки канала до целого набора обложек.</p>
+        <p><b>О проекте.</b> 11unit — это мой дизайн-проект. Я отвечаю за графику, а заказы принимают три менеджера. Напишите любому из нас, расскажите задачу, и мы договоримся о сроках и стоимости. Все контакты ниже.</p>
+        <h3><svg viewBox="270 235 540 610" aria-hidden="true"><use href="#mark"/></svg>Работаю в</h3>
+        <div class="tools"><span class="tool">Photoshop</span><span class="tool">Illustrator</span><span class="tool">Figma</span></div>
+      </div>
+      <div class="panel rv" id="panel" style="--d:.1s">
+        <svg class="outline" viewBox="270 235 540 610" aria-hidden="true"><polygon points="286.98 828.82 515.41 681.02 515.41 257.89 515.41 251.18 286.35 398.71 286.98 828.82"/><polygon points="565.22 828.82 793.65 681.02 793.65 257.89 793.65 251.18 564.59 398.71 565.22 828.82"/></svg>
+        <div class="stats">
+          <div class="stat"><b><span data-count="4">4</span>+</b><span>лет в дизайне</span></div>
+          <div class="stat"><b><span data-count="100">100</span>+</b><span>заказов выполнено</span></div>
+          <div class="stat"><b><span data-count="3">3</span></b><span>менеджера принимают заказы</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="what" style="padding-top:0">
+    <div class="wrap">
+      <div class="sec-head rv">
+        <div>
+          <div class="mono eyebrow"><svg viewBox="270 235 540 610" aria-hidden="true"><use href="#mark"/></svg>Что делаю</div>
+          <h2>Направления</h2>
+        </div>
+        <div class="mono">Нажмите, чтобы отфильтровать работы</div>
+      </div>
+      <div class="rows">
+        <button class="row" type="button" data-f="tg"><h3>Telegram-оформление</h3><p>Аватарки, баннеры и обложки для каналов и магазинов в Telegram.</p><span class="go"><span class="thumbs"><img src="img/t04.webp" alt="" loading="lazy"><img src="img/t05.webp" alt="" loading="lazy"><img src="img/t06.webp" alt="" loading="lazy"></span><span class="mono">10 работ</span></span></button>
+<button class="row" type="button" data-f="wear"><h3>Streetwear-бренды</h3><p>Каталоги, акции и розыгрыши для магазинов одежды.</p><span class="go"><span class="thumbs"><img src="img/t05.webp" alt="" loading="lazy"><img src="img/t11.webp" alt="" loading="lazy"><img src="img/t12.webp" alt="" loading="lazy"></span><span class="mono">06 работ</span></span></button>
+<button class="row" type="button" data-f="poster"><h3>Постеры</h3><p>Авторская графика и editorial: коллажи, типографика, атмосфера.</p><span class="go"><span class="thumbs"><img src="img/t13.webp" alt="" loading="lazy"><img src="img/t15.webp" alt="" loading="lazy"><img src="img/t17.webp" alt="" loading="lazy"></span><span class="mono">07 работ</span></span></button>
+<button class="row" type="button" data-f="brand"><h3>Айдентика и логотипы</h3><p>Знаки и фирменный стиль для проектов и сервисов.</p><span class="go"><span class="thumbs"><img src="img/t14.webp" alt="" loading="lazy"><img src="img/t20.webp" alt="" loading="lazy"><img src="img/t25.webp" alt="" loading="lazy"></span><span class="mono">03 работ</span></span></button>
+
+      </div>
+    </div>
+  </section>
+
+  <section class="contact" id="contact">
+    <svg class="wm" viewBox="270 235 540 610" aria-hidden="true"><use href="#mark"/></svg>
+    <div class="wrap">
+      <div class="mono eyebrow rv"><svg viewBox="270 235 540 610" aria-hidden="true"><use href="#mark"/></svg>Принимаю новые заказы</div>
+      <h2 class="rv">Есть проект? Напишите нам</h2>
+      <div class="safe rv">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l8 3v6c0 4.5-3.2 8-8 9-4.8-1-8-4.5-8-9V6l8-3z"/><path d="M8.5 12l2.5 2.5 4.5-5"/></svg>
+        <div>
+          <b>Сверяйте тег, чтобы не попасться на мошенников</b>
+          <p>Заказы принимают только эти четыре аккаунта: я и три менеджера. Перед перепиской и оплатой проверьте, что тег совпадает с одним из них буква в букву. Если пишет кто-то другой, это не мы.</p>
+        </div>
+      </div>
+      <div class="people">
+        <div class="person lead"><span class="mono">Главный дизайнер</span><span class="nm">@sanzeliwa</span><div class="acts"><a class="btn" href="https://t.me/sanzeliwa" target="_blank" rel="noopener">Написать</a><button class="copy" type="button" data-copy="@sanzeliwa">Копировать</button></div></div><div class="person"><span class="mono">Менеджер</span><span class="nm">@UnitManager1</span><div class="acts"><a class="btn" href="https://t.me/UnitManager1" target="_blank" rel="noopener">Написать</a><button class="copy" type="button" data-copy="@UnitManager1">Копировать</button></div></div><div class="person"><span class="mono">Менеджер</span><span class="nm">@UnitManager2</span><div class="acts"><a class="btn" href="https://t.me/UnitManager2" target="_blank" rel="noopener">Написать</a><button class="copy" type="button" data-copy="@UnitManager2">Копировать</button></div></div><div class="person"><span class="mono">Менеджер</span><span class="nm">@UnitManager3</span><div class="acts"><a class="btn" href="https://t.me/UnitManager3" target="_blank" rel="noopener">Написать</a><button class="copy" type="button" data-copy="@UnitManager3">Копировать</button></div></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="word" aria-hidden="true"><svg viewBox="270 235 540 610"><use href="#mark"/></svg><span>11unit</span></div>
+  <div class="wrap base">
+    <span class="mono">© <span id="yr">2026</span> 11unit. Дизайн: Sanz Eliwa</span>
+    <a class="mono" href="#top" style="text-decoration:none">Наверх ↑</a>
+  </div>
+</footer>
+
+<div class="lb" id="lb" role="dialog" aria-modal="true" aria-label="Просмотр работы" hidden>
+  <div class="lb-bar">
+    <span class="mono" id="lb-count"></span>
+    <button class="ib" id="lb-close" type="button" aria-label="Закрыть"><svg viewBox="0 0 24 24"><path d="M5 5l14 14M19 5L5 19"/></svg></button>
+  </div>
+  <div class="lb-stage" id="lb-stage">
+    <button class="ib lb-nav prev" id="lb-prev" type="button" aria-label="Предыдущая"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
+    <img id="lb-img" alt="">
+    <button class="ib lb-nav next" id="lb-next" type="button" aria-label="Следующая"><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button>
+  </div>
+  <div class="lb-foot"><b id="lb-title"></b><span class="mono" id="lb-cat"></span><svg viewBox="270 235 540 610" aria-hidden="true"><use href="#mark"/></svg></div>
+</div>
+
+<script>
+(function(){
+  var $=function(s,r){return (r||document).querySelector(s)},$$=function(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s))};
+  var reduce=matchMedia('(prefers-reduced-motion:reduce)').matches;
+  var works=$$('.work'),chips=$$('.chip'),shown=$('#shown');
+  var CAT={tg:'Telegram',wear:'Streetwear',poster:'Постер',brand:'Айдентика'};
+
+  /* reveal on scroll (fallback reveals everything after 4s) */
+  var rv=$$('.rv,.work');
+  works.forEach(function(w,i){w.classList.add('rv');w.style.setProperty('--d',(i%3)*.08+'s')});
+  rv=$$('.rv');
+  function seen(el){
+    el.classList.add('in');
+    if(el.id==='panel')countUp(el);
+  }
+  if('IntersectionObserver' in window){
+    var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){seen(e.target);io.unobserve(e.target)}})},{threshold:.08,rootMargin:'0px 0px -6% 0px'});
+    rv.forEach(function(el){io.observe(el)});
+  }
+  setTimeout(function(){rv.forEach(function(el){el.classList.add('in')})},4000);
+
+  function countUp(panel){
+    if(reduce)return;
+    $$('[data-count]',panel).forEach(function(n){
+      var to=+n.dataset.count,t0=null;
+      function f(t){t0=t0||t;var p=Math.min((t-t0)/1400,1),e=1-Math.pow(1-p,3);n.textContent=Math.round(to*e);if(p<1)requestAnimationFrame(f)}
+      n.textContent='0';requestAnimationFrame(f);
+    });
+  }
+
+  /* filter */
+  function applyFilter(cat){
+    var n=0;
+    works.forEach(function(w){
+      var ok=cat==='all'||w.dataset.cat.split(' ').indexOf(cat)>-1;
+      w.hidden=!ok;
+      if(ok){
+        w.classList.add('in');
+        if(!reduce){w.classList.remove('pop');void w.offsetWidth;w.style.setProperty('--pd',(n%6)*.05+'s');w.classList.add('pop')}
+        n++;
+      }
+    });
+    chips.forEach(function(c){c.setAttribute('aria-pressed',String(c.dataset.f===cat))});
+    shown.textContent=n;
+  }
+  chips.forEach(function(c){c.addEventListener('click',function(){applyFilter(c.dataset.f)})});
+  $$('.row').forEach(function(r){r.addEventListener('click',function(){
+    applyFilter(r.dataset.f);
+    $('#works').scrollIntoView({behavior:reduce?'auto':'smooth'});
+  })});
+
+  /* lightbox */
+  var lb=$('#lb'),img=$('#lb-img'),cur=0,list=[],last=null;
+  function visible(){return works.filter(function(w){return !w.hidden})}
+  function show(i){
+    cur=(i+list.length)%list.length;
+    var w=list[cur];
+    img.style.animation='none';void img.offsetWidth;img.style.animation='';
+    img.src=w.dataset.full; img.alt=w.dataset.title;
+    $('#lb-title').textContent=w.dataset.title;
+    $('#lb-cat').textContent=w.dataset.cat.split(' ').map(function(c){return CAT[c]}).join(' · ');
+    $('#lb-count').textContent=String(cur+1).padStart(2,'0')+' / '+String(list.length).padStart(2,'0');
+    var nx=list[(cur+1)%list.length]; if(nx){new Image().src=nx.dataset.full}
+  }
+  function open(w){
+    list=visible(); last=document.activeElement;
+    lb.hidden=false; document.documentElement.style.overflow='hidden';
+    show(list.indexOf(w)); $('#lb-close').focus();
+  }
+  function close(){lb.hidden=true;document.documentElement.style.overflow='';if(last)last.focus()}
+  works.forEach(function(w){$('.card',w).addEventListener('click',function(){open(w)})});
+  $('#lb-close').addEventListener('click',close);
+  $('#lb-prev').addEventListener('click',function(){show(cur-1)});
+  $('#lb-next').addEventListener('click',function(){show(cur+1)});
+  lb.addEventListener('click',function(e){if(e.target===lb||e.target===$('#lb-stage'))close()});
+  document.addEventListener('keydown',function(e){
+    if(lb.hidden){if(e.key==='Escape')closeMenu();return}
+    if(e.key==='Escape')close();
+    if(e.key==='ArrowLeft')show(cur-1);
+    if(e.key==='ArrowRight')show(cur+1);
+  });
+  var sx=null;
+  lb.addEventListener('touchstart',function(e){sx=e.touches[0].clientX},{passive:true});
+  lb.addEventListener('touchend',function(e){
+    if(sx===null)return; var dx=e.changedTouches[0].clientX-sx; sx=null;
+    if(Math.abs(dx)>50)show(cur+(dx<0?1:-1));
+  });
+
+  /* mobile menu */
+  var bg=$('#burger'),menu=$('#menu');
+  function closeMenu(){menu.classList.remove('open');bg.setAttribute('aria-expanded','false');document.documentElement.style.overflow=''}
+  bg.addEventListener('click',function(){
+    var o=!menu.classList.contains('open');
+    menu.classList.toggle('open',o);bg.setAttribute('aria-expanded',String(o));
+    document.documentElement.style.overflow=o?'hidden':'';
+  });
+  $$('a',menu).forEach(function(a){a.addEventListener('click',closeMenu)});
+
+  /* copy handles */
+  $$('.copy').forEach(function(b){
+    b.addEventListener('click',function(){
+      var t=b.dataset.copy;
+      function done(){b.textContent='Скопировано';setTimeout(function(){b.textContent='Копировать'},1600)}
+      function sel(){var r=document.createRange();r.selectNodeContents(b.closest('.person').querySelector('.nm'));var s=getSelection();s.removeAllRanges();s.addRange(r)}
+      try{navigator.clipboard.writeText(t).then(done,sel)}catch(e){sel()}
+    });
+  });
+
+  /* scroll: progress bar + logo parallax */
+  var prog=$('#prog'),wm=$('#wm'),tick=false;
+  function onScroll(){
+    var h=document.documentElement,max=h.scrollHeight-h.clientHeight,y=h.scrollTop;
+    prog.style.transform='scaleX('+(max>0?y/max:0)+')';
+    if(!reduce&&wm)wm.style.transform='translateY('+(y*.15)+'px) rotate('+(y*.012)+'deg)';
+    tick=false;
+  }
+  addEventListener('scroll',function(){if(!tick){tick=true;requestAnimationFrame(onScroll)}},{passive:true});
+  onScroll();
+
+  /* pointer effects (mouse only) */
+  if(!reduce&&matchMedia('(hover:hover)').matches){
+    var hero=$('.hero'),fan=$('#fan');
+    hero.addEventListener('pointermove',function(e){
+      var r=hero.getBoundingClientRect();
+      fan.style.setProperty('--px',((e.clientX-r.left)/r.width-.5).toFixed(3));
+      fan.style.setProperty('--py',((e.clientY-r.top)/r.height-.5).toFixed(3));
+    });
+    $$('.btn').forEach(function(b){
+      b.addEventListener('pointermove',function(e){
+        var r=b.getBoundingClientRect();
+        b.style.transform='translate('+((e.clientX-r.left-r.width/2)*.12)+'px,'+((e.clientY-r.top-r.height/2)*.2)+'px)';
+      });
+      b.addEventListener('pointerleave',function(){b.style.transform=''});
+    });
+  }
+  $('#yr').textContent=new Date().getFullYear();
+})();
+</script>
+
+</body></html>
